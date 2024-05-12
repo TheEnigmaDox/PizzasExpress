@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace PizzasExpress
@@ -12,6 +10,7 @@ namespace PizzasExpress
         bool _topCollision = false;
         bool _bottomCollision = false;
 
+        float crashDistance = 200f;
         float _moveSpeed = 5f;
         float _carRotation;
 
@@ -24,7 +23,7 @@ namespace PizzasExpress
         Texture2D _carTexture;
         Texture2D _debugPixel;
 
-        public EnemyCars(Texture2D carTexture, Vector2 position, Rectangle source, float carRotation, Texture2D debugPixel) 
+        public EnemyCars(Texture2D carTexture, Vector2 position, Rectangle source, float carRotation, Texture2D debugPixel)
         {
             _carTexture = carTexture;
             _debugPixel = debugPixel;
@@ -32,11 +31,11 @@ namespace PizzasExpress
             _source = source;
             _carRotation = carRotation;
 
-            if(_position.Y == 200)
+            if (_position.Y == 200)
             {
                 _bottomCollision = true;
             }
-            else if(_position.Y == 400)
+            else if (_position.Y == 400)
             {
                 _topCollision = true;
             }
@@ -60,22 +59,19 @@ namespace PizzasExpress
             {
                 directionToDrive = driveLeft;
             }
-            else if(_position.Y ==400 && _position.X < Globals.screenSize.X + _carTexture.Width)
+            else if (_position.Y == 400 && _position.X < Globals.screenSize.X + _carTexture.Width)
             {
-                directionToDrive = driveRight;    
+                directionToDrive = driveRight;
             }
-            
-            if(directionToDrive == driveLeft)
+
+            if (Vector2.Distance(playerVan._position, _position) < crashDistance)
             {
-                if(driveCollision.X < 100)
+                if (directionToDrive == driveLeft && driveCollision.X < 1)
                 {
                     directionToDrive = targetDirection;
                     _moveSpeed = Globals.rng.Next(3, 8);
                 }
-            }
-            else if(directionToDrive == driveRight)
-            {
-                if(driveCollision.X > 100)
+                else if (directionToDrive == driveRight && driveCollision.X > 1)
                 {
                     directionToDrive = targetDirection;
                     _moveSpeed = Globals.rng.Next(3, 8);
@@ -83,6 +79,8 @@ namespace PizzasExpress
             }
 
             _position += directionToDrive * _moveSpeed;
+
+            Debug.WriteLine("Distance : " + Vector2.Distance(playerVan._position, _position));
         }
 
         void UpdateEnemyCollision()
@@ -98,19 +96,19 @@ namespace PizzasExpress
             if (!_isDead)
             {
                 Globals.spriteBatch.Draw(_carTexture,
-                        _position,
-                        _source,
-                        Color.White,
-                        MathHelper.ToRadians(_carRotation),
-                        new Vector2(_source.Width / 2, _source.Height / 2),
-                        1f,
-                        SpriteEffects.None,
-                        1f); 
+                    _position,
+                    _source,
+                    Color.White,
+                    MathHelper.ToRadians(_carRotation),
+                    new Vector2(_source.Width / 2, _source.Height / 2),
+                    1f,
+                    SpriteEffects.None,
+                    1f);
             }
 
-            Globals.spriteBatch.Draw(_debugPixel,
-                _colRect,
-                Color.Red);
+            //Globals.spriteBatch.Draw(_debugPixel,
+            //    _colRect,
+            //    Color.Red);
         }
     }
 }

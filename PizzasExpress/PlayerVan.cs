@@ -2,13 +2,16 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace PizzasExpress
 {
     internal class PlayerVan
     {
-        public bool _isDead = false;
+        public int _playerHealth = 3;
+
         bool _isMouseButtonPressed = false;
+        public bool _isDead = false;
 
         float _moveSpeed = 5f;
 
@@ -53,6 +56,11 @@ namespace PizzasExpress
             UpdatePLayerVanCollision(nonEnemyCars);
             MovePlayerVan(gamePadState, keyboardState);
 
+            foreach (PizzaBullet eachBullet in _bullets)
+            {
+                eachBullet.UpdateBullet();
+            }
+
             if (!_isDead)
             {
                 if (mouseState.LeftButton == ButtonState.Pressed && !_isMouseButtonPressed)
@@ -65,6 +73,8 @@ namespace PizzasExpress
                     _isMouseButtonPressed = false;
                 } 
             }
+
+            //Debug.WriteLine("Player health : " + _playerHealth);
         }
 
         private void MovePlayerVan(GamePadState gamePadState, KeyboardState keyboardState)
@@ -107,15 +117,17 @@ namespace PizzasExpress
                 if (_colRect.Intersects(nonEnemyCars[i]._colRect))
                 {
                     nonEnemyCars.Remove(nonEnemyCars[i]);
-                    _isDead = true;
+                    if (_playerHealth > 0)
+                    {
+                        _playerHealth--;
+                    }
                 }
             }
 
-            foreach (PizzaBullet eachBullet in _bullets)
+            if (_playerHealth == 0)
             {
-                eachBullet.UpdateBullet();
+                _isDead = true;
             }
-
         }
 
         public void DrawPlayerVan()

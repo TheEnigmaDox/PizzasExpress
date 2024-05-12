@@ -11,6 +11,9 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Content\File.spritefont" />
+    <None Remove="Content\Fonts\retro.ttf" />
+    <None Remove="Content\Fonts\RETROTECH.ttf" />
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>

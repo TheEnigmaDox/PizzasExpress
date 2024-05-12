@@ -131,7 +131,7 @@ namespace PizzasExpress
                 if (_enemyCars[i]._colRect.Intersects(playerVan._colRect))
                 {
                     _enemyCars.Remove(_enemyCars[i]);
-                    playerVan._isDead = true;
+                    playerVan._playerHealth--;
                 }
             }
 
@@ -155,7 +155,7 @@ namespace PizzasExpress
                 }
             }
 
-            Debug.WriteLine(_nonEnemyCars.Count);
+            //Debug.WriteLine(_nonEnemyCars.Count);
         }
 
         public void DrawNonEnemyCars()

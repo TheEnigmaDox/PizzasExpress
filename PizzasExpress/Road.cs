@@ -28,7 +28,7 @@ namespace PizzasExpress
                 0f,
                 new Vector2(_roadTexture.Width / 2, _roadTexture.Height / 2),
                 SpriteEffects.None,
-                0f);
+                1f);
 
             Globals.spriteBatch.Draw(_debugPixel,
                 new Rectangle((int)_position.X + _roadTexture.Width / 2, (int)_position.Y, -10, 10),
