@@ -2,17 +2,22 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace PizzasExpress
 {
     public class Game1 : Game
     {
+        bool isSpacePressed = false;
+
         Texture2D carSheet;
         Texture2D roadTexture;
         Texture2D debugPixel;
         Texture2D pizzaBullet;
         Texture2D backgroundGrass;
+
+        Rectangle mouseRect;
 
         List<Road> roadList = new List<Road>();
         List<Grass> grassList = new List<Grass>();
@@ -24,6 +29,8 @@ namespace PizzasExpress
         UIManager uiManager;
 
         SpriteFont gameFont;
+
+        public GameState gameState = GameState.TitleScreen;
 
         GamePadState gamePadState;
         KeyboardState keyboardState;
@@ -73,6 +80,7 @@ namespace PizzasExpress
             playerHealth.Add(Content.Load<Texture2D>("Textures/PlayerHealth/PlayerHealth00"));
             playerHealth.Add(Content.Load<Texture2D>("Textures/PlayerHealth/PlayerHealth01"));
             playerHealth.Add(Content.Load<Texture2D>("Textures/PlayerHealth/PlayerHealth02"));
+            playerHealth.Add(Content.Load<Texture2D>("Textures/PlayerHealth/PlayerHealth03"));
 
             // TODO: use this.Content to load your game content here
 
@@ -83,10 +91,10 @@ namespace PizzasExpress
                 new Rectangle(247, 123, 52, 92),
                 pizzaBullet);
 
-            carSpawner = new CarSpawner(carSheet,debugPixel);
+            carSpawner = new CarSpawner(carSheet, debugPixel, this);
 
             uiManager = new UIManager(playerHealth, Content.Load<Texture2D>("Textures/ScoreBar"),
-                Content.Load<SpriteFont>("Fonts/GameFont"));            
+                Content.Load<SpriteFont>("Fonts/GameFont"), Content.Load<SpriteFont>("Fonts/TitleFont"), this, playerVan, debugPixel);            
         }
 
         protected override void Update(GameTime gameTime)
@@ -100,13 +108,45 @@ namespace PizzasExpress
 
             // TODO: Add your update logic here
 
-            roadManager.UpdateScrollingManager();
-            playerVan.UpdatePlayerVan(gameTime, gamePadState, keyboardState, mouseState, carSpawner._nonEnemyCars);
-            carSpawner.UpdateCarSpawner(gameTime, playerVan);
-            uiManager.Update(playerVan);
-
+            switch (gameState)
+            {
+                case GameState.TitleScreen:
+                    UpdateTitleScreen(mouseState, gameTime);
+                    break;
+                case GameState.Game:
+                    UpdateGame(gameTime);
+                    break;
+                case GameState.GameOver:
+                    UpdateGameOver();
+                    break;
+            }
 
             base.Update(gameTime);
+        }
+
+        void UpdateTitleScreen(MouseState mouseState, GameTime gameTime)
+        {
+            roadManager.UpdateScrollingManager();
+            carSpawner.UpdateCarSpawner(gameTime, playerVan);
+            uiManager.Update(gameTime, mouseState);
+        }
+
+        void UpdateGame(GameTime gameTime)
+        {
+            playerVan.UpdatePlayerVan(gameTime, gamePadState, keyboardState, mouseState, carSpawner._nonEnemyCars);
+            roadManager.UpdateScrollingManager();
+            carSpawner.UpdateCarSpawner(gameTime, playerVan);
+            uiManager.Update(gameTime, mouseState);
+
+            if (keyboardState.IsKeyDown(Keys.Space) && !isSpacePressed)
+            {
+                gameState = GameState.GameOver;
+            }
+        }
+
+        void UpdateGameOver()
+        {
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -117,15 +157,54 @@ namespace PizzasExpress
 
             Globals.spriteBatch.Begin();
 
+            switch (gameState)
+            {
+                case GameState.TitleScreen:
+                    DrawTitleScreen();
+                    break;
+                case GameState.Game:
+                    DrawGame();
+                    break;
+                case GameState.GameOver:
+                    DrawGameOver();
+                    break;
+            }
+
+            Globals.spriteBatch.End();
+
+            base.Draw(gameTime);
+        }
+
+        void DrawTitleScreen()
+        {
+            roadManager.UpdateScrollDraw();
+            carSpawner.DrawNonEnemyCars();
+            uiManager.DrawUI();
+
+            Globals.spriteBatch.Draw(debugPixel,
+                mouseRect,
+                Color.White);
+        }
+
+        void DrawGame()
+        { 
             roadManager.UpdateScrollDraw();
             playerVan.DrawPlayerVan();
             carSpawner.DrawNonEnemyCars();
 
             uiManager.DrawUI();
+        }
 
-            Globals.spriteBatch.End();
+        void DrawGameOver()
+        {
 
-            base.Draw(gameTime);
+        }
+
+        public enum GameState
+        {
+            TitleScreen,
+            Game,
+            GameOver
         }
     }
 }

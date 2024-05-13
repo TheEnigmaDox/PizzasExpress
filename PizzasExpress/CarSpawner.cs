@@ -28,7 +28,9 @@ namespace PizzasExpress
         public List<NonEnemyCars> _nonEnemyCars = new List<NonEnemyCars>();
         public List<EnemyCars> _enemyCars = new List<EnemyCars>();
 
-        public CarSpawner(Texture2D carSheet, Texture2D debugPixel) 
+        Game1 _gameOne;
+
+        public CarSpawner(Texture2D carSheet, Texture2D debugPixel, Game1 gameOne) 
         {
             _carSheet = carSheet;
             _debugPixel = debugPixel;
@@ -48,6 +50,8 @@ namespace PizzasExpress
 
             _spawnPositions.Add(new Vector2(Globals.screenSize.X, 200));
             _spawnPositions.Add(new Vector2(0, 400));
+
+            _gameOne = gameOne;
         }
 
         public void UpdateCarSpawner(GameTime gameTime, PlayerVan playerVan)
@@ -73,7 +77,8 @@ namespace PizzasExpress
                             spawnPoint - _spawnOffset,
                             _enemysourceRects[Globals.rng.Next(0, _enemysourceRects.Count)],
                             -90,
-                            _debugPixel));
+                            _debugPixel,
+                            _gameOne));
                     }
                 }
                 else if(spawnPoint.Y > Globals.screenSize.Y / 2)
@@ -91,7 +96,8 @@ namespace PizzasExpress
                             spawnPoint - _spawnOffset,
                             _enemysourceRects[Globals.rng.Next(0, _enemysourceRects.Count)],
                             9090,
-                            _debugPixel));
+                            _debugPixel,
+                            _gameOne));
                     }
                 }
 
@@ -126,33 +132,39 @@ namespace PizzasExpress
                 _enemyCars[i].UpdateEnemyCars(playerVan);
             }
 
-            for(int i = 0; i < _enemyCars.Count; i++)
+            if (_gameOne.gameState == Game1.GameState.Game)
             {
-                if (_enemyCars[i]._colRect.Intersects(playerVan._colRect))
+                for (int i = 0; i < _enemyCars.Count; i++)
                 {
-                    _enemyCars.Remove(_enemyCars[i]);
-                    playerVan._playerHealth--;
-                }
-            }
-
-            for (int i = 0; i < playerVan._bullets.Count; i++)
-            {
-                for (int j = 0; j < _enemyCars.Count; j++)
-                {
-                    if (_enemyCars[j]._colRect.Intersects(playerVan._bullets[i]._colRect))
+                    if (_enemyCars[i]._colRect.Intersects(playerVan._colRect))
                     {
-                        if(enemyHealth > 0)
-                        {
-                            enemyHealth--;
-                            playerVan._bullets.Remove(playerVan._bullets[i]);
-                        }
-                        else
-                        {
-                            playerVan._bullets.Remove(playerVan._bullets[i]);
-                            _enemyCars.Remove(_enemyCars[j]);
-                        }
-                    } 
+                        _enemyCars.Remove(_enemyCars[i]);
+                        playerVan._playerHealth--;
+                    }
                 }
+
+                for (int i = 0; i < playerVan._bullets.Count; i++)
+                {
+                    for (int j = 0; j < _enemyCars.Count; j++)
+                    {
+                        if (_enemyCars[j]._colRect.Intersects(playerVan._bullets[i]._colRect))
+                        {
+                            if (enemyHealth > 0)
+                            {
+                                enemyHealth--;
+                                playerVan._bullets.Remove(playerVan._bullets[i]);
+                            }
+                            else
+                            {
+                                playerVan._bullets.Remove(playerVan._bullets[i]);
+                                _enemyCars.Remove(_enemyCars[j]);
+                                playerVan.AddToScore(5);
+                            }
+                        }
+
+
+                    }
+                } 
             }
 
             //Debug.WriteLine(_nonEnemyCars.Count);

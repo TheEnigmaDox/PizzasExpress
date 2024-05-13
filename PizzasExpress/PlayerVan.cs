@@ -8,6 +8,7 @@ namespace PizzasExpress
 {
     internal class PlayerVan
     {
+        public int _playerScore = 0;
         public int _playerHealth = 3;
 
         bool _isMouseButtonPressed = false;
@@ -66,7 +67,7 @@ namespace PizzasExpress
                 if (mouseState.LeftButton == ButtonState.Pressed && !_isMouseButtonPressed)
                 {
                     _isMouseButtonPressed = true;
-                    _bullets.Add(new PizzaBullet(_pizzaBullet, _position));
+                    _bullets.Add(new PizzaBullet(_pizzaBullet, new Vector2(_position.X, _position.Y - _pizzaBullet.Height / 2)));
                 }
                 else if (mouseState.LeftButton == ButtonState.Released && _isMouseButtonPressed)
                 {
@@ -107,11 +108,6 @@ namespace PizzasExpress
                 _source.Height,
                 _source.Width);
 
-            _fireTrigger = new Rectangle((int)_position.X + _source.Height,
-                (int)_position.Y - _source.Width / 2,
-                _source.Width / 2,
-                _source.Width);
-
             for (int i = 0; i < nonEnemyCars.Count; i++)
             {
                 if (_colRect.Intersects(nonEnemyCars[i]._colRect))
@@ -128,6 +124,11 @@ namespace PizzasExpress
             {
                 _isDead = true;
             }
+        }
+
+        public void AddToScore(int score)
+        {
+            _playerScore += score;
         }
 
         public void DrawPlayerVan()
@@ -152,10 +153,6 @@ namespace PizzasExpress
             //Globals.spriteBatch.Draw(_debugPixel,
             //    _colRect,
             //    Color.Red);
-
-            //Globals.spriteBatch.Draw(_debugPixel,
-            //    _fireTrigger,
-            //    Color.Blue);
         }
     }
 }

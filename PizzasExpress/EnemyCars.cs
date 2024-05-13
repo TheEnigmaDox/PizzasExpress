@@ -23,7 +23,9 @@ namespace PizzasExpress
         Texture2D _carTexture;
         Texture2D _debugPixel;
 
-        public EnemyCars(Texture2D carTexture, Vector2 position, Rectangle source, float carRotation, Texture2D debugPixel)
+        Game1 _gameOne;
+
+        public EnemyCars(Texture2D carTexture, Vector2 position, Rectangle source, float carRotation, Texture2D debugPixel, Game1 gameOne)
         {
             _carTexture = carTexture;
             _debugPixel = debugPixel;
@@ -44,14 +46,33 @@ namespace PizzasExpress
                 (int)_position.Y - _source.Width / 2,
                 _source.Height,
                 _source.Width);
+            _gameOne = gameOne; 
         }
 
         public void UpdateEnemyCars(PlayerVan playerVan)
         {
             Vector2 driveLeft = new Vector2(-1, 0);
             Vector2 driveRight = new Vector2(1, 0);
-            Vector2 driveCollision = playerVan._position - _position;
-            Vector2 targetDirection = Vector2.Normalize(playerVan._position - _position);
+
+            if (_gameOne.gameState == Game1.GameState.Game)
+            {
+                Vector2 driveCollision = playerVan._position - _position;
+                Vector2 targetDirection = Vector2.Normalize(playerVan._position - _position);
+
+                if (Vector2.Distance(playerVan._position, _position) < crashDistance)
+                {
+                    if (directionToDrive == driveLeft && driveCollision.X < 1)
+                    {
+                        directionToDrive = targetDirection;
+                        _moveSpeed = Globals.rng.Next(3, 8);
+                    }
+                    else if (directionToDrive == driveRight && driveCollision.X > 1)
+                    {
+                        directionToDrive = targetDirection;
+                        _moveSpeed = Globals.rng.Next(3, 8);
+                    }
+                }
+            }
 
             UpdateEnemyCollision();
 
@@ -64,23 +85,9 @@ namespace PizzasExpress
                 directionToDrive = driveRight;
             }
 
-            if (Vector2.Distance(playerVan._position, _position) < crashDistance)
-            {
-                if (directionToDrive == driveLeft && driveCollision.X < 1)
-                {
-                    directionToDrive = targetDirection;
-                    _moveSpeed = Globals.rng.Next(3, 8);
-                }
-                else if (directionToDrive == driveRight && driveCollision.X > 1)
-                {
-                    directionToDrive = targetDirection;
-                    _moveSpeed = Globals.rng.Next(3, 8);
-                }
-            }
-
             _position += directionToDrive * _moveSpeed;
 
-            Debug.WriteLine("Distance : " + Vector2.Distance(playerVan._position, _position));
+            //Debug.WriteLine("Distance : " + Vector2.Distance(playerVan._position, _position));
         }
 
         void UpdateEnemyCollision()
